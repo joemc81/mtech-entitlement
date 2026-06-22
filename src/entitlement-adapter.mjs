@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { loadConfig } from "./config.mjs";
 
 const DEFAULT_CODES_FILE = "entitlements/themes/codes.json";
 const SAFE_CODE_PATTERN = /^[A-Za-z0-9._-]{4,120}$/;
@@ -14,13 +15,15 @@ export async function loadThemeCodes(path = process.env.ENTITLEMENT_CODES_FILE |
   return decoded.codes;
 }
 
-export async function validateThemeCode(request, { loadCodes = loadThemeCodes, now = () => new Date(), logger = safeLog } = {}) {
-  const normalized = normalizeRequest(request);
+export async function validateThemeCode(request, { loadCodes = loadThemeCodes, now = () => new Date(), logger = safeLog, requestId = "", config = loadConfig() } = {}) {
+  const normalized = normalizeRequest(request, config);
   if (!normalized.ok) {
     logger("theme_entitlement_validation", {
+      requestId,
+      app: normalized.app,
       platform: normalized.platform,
       appVersion: normalized.appVersion,
-      success: false,
+      result: "failure",
       reason: normalized.reason
     });
     return invalidResponse("Invalid or expired code.");
@@ -30,9 +33,11 @@ export async function validateThemeCode(request, { loadCodes = loadThemeCodes, n
   const match = codes.find((entry) => normalizeCode(entry.code) === normalized.code);
   if (!match) {
     logger("theme_entitlement_validation", {
+      requestId,
+      app: normalized.app,
       platform: normalized.platform,
       appVersion: normalized.appVersion,
-      success: false,
+      result: "failure",
       reason: "code_not_found"
     });
     return invalidResponse("Invalid or expired code.");
@@ -41,11 +46,13 @@ export async function validateThemeCode(request, { loadCodes = loadThemeCodes, n
   const decision = validateEntry(match, normalized, now());
   if (!decision.ok) {
     logger("theme_entitlement_validation", {
+      requestId,
+      app: normalized.app,
       entitlementId: safeValue(match.entitlementId),
       themeId: safeValue(match.themeId),
       platform: normalized.platform,
       appVersion: normalized.appVersion,
-      success: false,
+      result: "failure",
       reason: decision.reason
     });
     return invalidResponse("Invalid or expired code.");
@@ -53,11 +60,13 @@ export async function validateThemeCode(request, { loadCodes = loadThemeCodes, n
 
   const grant = normalizedGrant(match);
   logger("theme_entitlement_validation", {
+    requestId,
+    app: normalized.app,
     entitlementId: grant.entitlementId,
     themeId: grant.themeId,
     platform: normalized.platform,
     appVersion: normalized.appVersion,
-    success: true,
+    result: "success",
     reason: "valid"
   });
   return {
@@ -67,22 +76,25 @@ export async function validateThemeCode(request, { loadCodes = loadThemeCodes, n
   };
 }
 
-function normalizeRequest(value) {
+function normalizeRequest(value, config) {
   const code = normalizeCode(value?.code);
   const app = safeValue(value?.app).toLowerCase();
   const platform = safeValue(value?.platform).toLowerCase();
   const appVersion = safeValue(value?.appVersion);
   if (!SAFE_CODE_PATTERN.test(code)) {
-    return { ok: false, platform, appVersion, reason: "invalid_code_format" };
+    return { ok: false, app, platform, appVersion, reason: "invalid_code_format" };
   }
-  if (app !== "afon") {
-    return { ok: false, platform, appVersion, reason: "invalid_app" };
+  if (!config.allowedApps.includes(app)) {
+    return { ok: false, app, platform, appVersion, reason: "invalid_app" };
   }
-  if (!["android", "ios", "macos", "windows", "linux", "unknown"].includes(platform)) {
-    return { ok: false, platform, appVersion, reason: "invalid_platform" };
+  if (!config.allowedPlatforms.includes(platform)) {
+    return { ok: false, app, platform, appVersion, reason: "invalid_platform" };
   }
   if (appVersion.length === 0 || appVersion.length > 64) {
-    return { ok: false, platform, appVersion, reason: "invalid_app_version" };
+    return { ok: false, app, platform, appVersion, reason: "invalid_app_version" };
+  }
+  if (config.minimumAppVersion && compareVersions(appVersion, config.minimumAppVersion) < 0) {
+    return { ok: false, app, platform, appVersion, reason: "app_version_too_old" };
   }
   return { ok: true, code, app, platform, appVersion };
 }

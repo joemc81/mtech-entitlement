@@ -43,18 +43,41 @@ test("valid code returns normalized entitlement without original code", async ()
   assert.equal(response.entitlements[0].packageHash, validEntry.packageSha256);
   assert.equal(JSON.stringify(response).includes("SMOKE-PRIVATE-TEST"), false);
   assert.equal(JSON.stringify(logs).includes("SMOKE-PRIVATE-TEST"), false);
-  assert.deepEqual(logs[0].metadata, {
+  assert.match(logs[0].metadata.requestId, /^$/);
+  assert.deepEqual({ ...logs[0].metadata, requestId: "" }, {
+    requestId: "",
+    app: "afon",
     entitlementId: "theme_smoke_001",
     themeId: "smoke",
     platform: "android",
     appVersion: "0.1.1+15",
-    success: true,
+    result: "success",
     reason: "valid"
   });
 });
 
-test("invalid code fails closed with no entitlement", async () => {
-  const response = await validateThemeCode(request({ code: "missing-code" }), {
+test("missing code fails closed with no entitlement", async () => {
+  const response = await validateThemeCode(request({ code: "" }), {
+    loadCodes: async () => [validEntry],
+    logger: () => {}
+  });
+
+  assert.equal(response.valid, false);
+  assert.deepEqual(response.entitlements, []);
+});
+
+test("wrong app fails closed", async () => {
+  const response = await validateThemeCode(request({ app: "other" }), {
+    loadCodes: async () => [validEntry],
+    logger: () => {}
+  });
+
+  assert.equal(response.valid, false);
+  assert.deepEqual(response.entitlements, []);
+});
+
+test("unsupported platform fails closed", async () => {
+  const response = await validateThemeCode(request({ platform: "linux" }), {
     loadCodes: async () => [validEntry],
     logger: () => {}
   });
@@ -86,5 +109,18 @@ test("platform and app version gates are enforced", async () => {
 
   assert.equal(iosDenied.valid, false);
   assert.equal(oldApp.valid, false);
-}
-);
+});
+
+test("environment minimum app version is enforced", async () => {
+  const response = await validateThemeCode(request({ appVersion: "0.1.1+14" }), {
+    loadCodes: async () => [{ ...validEntry, minAppVersion: undefined }],
+    config: {
+      allowedApps: ["afon"],
+      allowedPlatforms: ["android", "ios"],
+      minimumAppVersion: "0.1.1+15"
+    },
+    logger: () => {}
+  });
+
+  assert.equal(response.valid, false);
+});

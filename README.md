@@ -81,15 +81,68 @@ npm test
 npm start
 ```
 
-Optional environment:
+## Configuration
+
+Environment variables:
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `PORT` | No | `8787` | HTTP port for local/container runtime. |
+| `ENTITLEMENT_CODES_FILE` | No | `entitlements/themes/codes.json` | Private entitlement data path. |
+| `ALLOWED_APP_IDS` | No | `afon` | Comma-separated allowed app IDs. |
+| `ALLOWED_PLATFORMS` | No | `android,ios` | Comma-separated allowed platform values. |
+| `MIN_APP_VERSION` | No | empty | Optional global minimum Afon version. |
+| `MAX_BODY_BYTES` | No | `16384` | Request body size cap. |
+| `RATE_LIMIT_WINDOW_MS` | No | `60000` | Per-IP rate-limit window. |
+| `RATE_LIMIT_MAX_REQUESTS` | No | `30` | Max requests per IP/window. |
+| `CODE_THROTTLE_WINDOW_MS` | No | `60000` | Per-code attempt throttle window. |
+| `CODE_THROTTLE_MAX_ATTEMPTS` | No | `10` | Max attempts per code/window. |
+
+Example:
 
 ```sh
-PORT=8787
-ENTITLEMENT_CODES_FILE=entitlements/themes/codes.json
+PORT=8787 \
+ENTITLEMENT_CODES_FILE=entitlements/themes/codes.json \
+ALLOWED_APP_IDS=afon \
+ALLOWED_PLATFORMS=android,ios \
+MIN_APP_VERSION=0.1.1+15 \
+npm start
 ```
+
+## Sample Curl
+
+```sh
+curl -sS \
+  -X POST \
+  -H 'content-type: application/json' \
+  https://<host>/theme-entitlements \
+  -d '{
+    "code": "<private-code>",
+    "app": "afon",
+    "platform": "android",
+    "appVersion": "0.1.1+15"
+  }'
+```
+
+The response never includes the submitted code.
+
+## Afon Build Flag
 
 Afon build/run config must use the adapter URL:
 
 ```sh
---dart-define=themeEntitlementUrl=https://<mtech-entitlement-endpoint>/theme-entitlements
+--dart-define=themeEntitlementUrl=https://<host>/theme-entitlements
 ```
+
+Do not configure Afon to read this repository or any GitHub URL directly.
+
+## Security Notes
+
+- `/theme-entitlements` accepts only `POST`.
+- Requests must use `content-type: application/json`.
+- Oversized or malformed bodies fail closed.
+- Invalid, expired, disabled, wrong-app, and wrong-platform codes return the same
+  generic failure shape.
+- Logs exclude submitted codes and request bodies.
+- Logs include request id, app, platform, app version, result, reason, and theme id
+  only when available.
