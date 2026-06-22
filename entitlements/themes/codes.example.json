@@ -5,7 +5,7 @@
     {
       "code": "REPLACE-WITH-PRIVATE-CODE",
       "enabled": true,
-      "app": "afon",
+      "allowedApps": ["afon"],
       "entitlementId": "theme_smoke_001",
       "themeId": "smoke",
       "publisherId": "mtech",

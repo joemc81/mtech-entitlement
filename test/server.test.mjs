@@ -8,7 +8,7 @@ import { createEntitlementServer } from "../src/server.mjs";
 const validEntry = {
   code: "SMOKE-PRIVATE-TEST",
   enabled: true,
-  app: "afon",
+  allowedApps: ["afon"],
   entitlementId: "theme_smoke_001",
   themeId: "smoke",
   publisherId: "mtech",

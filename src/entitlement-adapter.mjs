@@ -101,7 +101,10 @@ function normalizeRequest(value, config) {
 
 function validateEntry(entry, request, now) {
   if (entry?.enabled !== true) return { ok: false, reason: "code_disabled" };
-  if (safeValue(entry.app).toLowerCase() !== request.app) return { ok: false, reason: "app_mismatch" };
+  const allowedApps = Array.isArray(entry.allowedApps)
+    ? entry.allowedApps.map((item) => safeValue(item).toLowerCase())
+    : [safeValue(entry.app).toLowerCase()].filter(Boolean);
+  if (!allowedApps.includes(request.app)) return { ok: false, reason: "app_mismatch" };
   if (!SAFE_ID_PATTERN.test(safeValue(entry.entitlementId))) return { ok: false, reason: "invalid_entitlement_id" };
   if (!SAFE_ID_PATTERN.test(safeValue(entry.themeId))) return { ok: false, reason: "invalid_theme_id" };
   if (!SAFE_ID_PATTERN.test(safeValue(entry.publisherId))) return { ok: false, reason: "invalid_publisher_id" };
