@@ -39,8 +39,8 @@ Success:
       "version": "1.0.0",
       "issuedAt": "2026-06-22T00:00:00.000Z",
       "expiresAt": null,
-      "packageUrl": "https://m-techindustries.com/afon/themes/smoke/package.zip",
-      "sha256Url": "https://m-techindustries.com/afon/themes/smoke/package.sha256",
+      "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/smoke/package.zip",
+      "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/smoke/package.sha256",
       "packageSha256": "<sha256>",
       "packageHash": "<sha256>"
     }
@@ -213,6 +213,7 @@ curl -sS -X POST -H 'content-type: application/json' \
 Confirm:
 
 - `/healthz` returns `{ "ok": true }`.
+- Startup logs include `loadedThemeEntitlementCodes=3`.
 - Smoke code returns one Smoke entitlement.
 - Nebula code returns one Nebula entitlement.
 - Invalid code returns the generic failure shape.
@@ -228,6 +229,9 @@ Afon build/run config must use the adapter URL:
 ```
 
 Do not configure Afon to read this repository or any GitHub URL directly.
+
+After hosted validation passes, replace any local-endpoint emulator build with a
+hosted-endpoint build so future testing does not accidentally hit localhost.
 
 ## Security Notes
 
