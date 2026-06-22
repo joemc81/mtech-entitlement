@@ -91,6 +91,19 @@ export function createEntitlementServer({
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const server = createEntitlementServer({ config });
   server.listen(config.port, () => {
+    loadThemeCodes(config.entitlementCodesFile)
+      .then((codes) => {
+        safeLog("theme_entitlement_codes_loaded", {
+          loadedThemeEntitlementCodes: codes.length,
+          entitlementCodesFile: config.entitlementCodesFile
+        });
+      })
+      .catch(() => {
+        safeLog("theme_entitlement_codes_load_failed", {
+          loadedThemeEntitlementCodes: 0,
+          entitlementCodesFile: config.entitlementCodesFile
+        });
+      });
     safeLog("entitlement_adapter_started", { port: config.port });
   });
 }
