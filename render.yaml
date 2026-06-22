@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: mtech-entitlement
+    runtime: node
+    plan: starter
+    buildCommand: npm test
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: ENTITLEMENT_CODES_FILE
+        value: entitlements/themes/codes.json
+      - key: ALLOWED_APP_IDS
+        value: afon
+      - key: ALLOWED_PLATFORMS
+        value: android,ios
+      - key: MIN_APP_VERSION
+        value: 0.1.1+15

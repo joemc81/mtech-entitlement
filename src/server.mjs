@@ -24,8 +24,8 @@ export function createEntitlementServer({
   return createServer(async (request, response) => {
     const requestId = randomUUID();
     try {
-      if (request.method === "GET" && request.url === "/health") {
-        return sendJson(response, 200, { ok: true, requestId });
+      if (request.method === "GET" && isHealthPath(request.url)) {
+        return sendJson(response, 200, { ok: true });
       }
       if (request.url !== "/theme-entitlements") {
         return sendJson(response, 404, { error: "not_found", requestId });
@@ -128,6 +128,10 @@ function genericFailure(requestId) {
 
 function hasJsonContentType(value) {
   return typeof value === "string" && value.toLowerCase().split(";")[0].trim() === "application/json";
+}
+
+function isHealthPath(value) {
+  return value === "/healthz" || value === "/health";
 }
 
 function clientIpFor(request) {

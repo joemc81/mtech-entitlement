@@ -81,6 +81,18 @@ npm test
 npm start
 ```
 
+Health check:
+
+```sh
+curl -sS http://127.0.0.1:8787/healthz
+```
+
+Expected:
+
+```json
+{ "ok": true }
+```
+
 ## Configuration
 
 Environment variables:
@@ -97,6 +109,27 @@ Environment variables:
 | `RATE_LIMIT_MAX_REQUESTS` | No | `30` | Max requests per IP/window. |
 | `CODE_THROTTLE_WINDOW_MS` | No | `60000` | Per-code attempt throttle window. |
 | `CODE_THROTTLE_MAX_ATTEMPTS` | No | `10` | Max attempts per code/window. |
+
+Required deployment values:
+
+```text
+ENTITLEMENT_CODES_FILE=entitlements/themes/codes.json
+ALLOWED_APP_IDS=afon
+ALLOWED_PLATFORMS=android,ios
+MIN_APP_VERSION=0.1.1+15
+```
+
+Start command:
+
+```sh
+npm start
+```
+
+Health check path:
+
+```text
+/healthz
+```
 
 Example:
 
@@ -125,6 +158,66 @@ curl -sS \
 ```
 
 The response never includes the submitted code.
+
+## Render Deployment
+
+This repo is prepared for Render using `render.yaml`.
+
+Render setup:
+
+1. Create a new Render Web Service from the private GitHub repository.
+2. Use the Node runtime.
+3. Build command: `npm test`
+4. Start command: `npm start`
+5. Health check path: `/healthz`
+6. Confirm these environment variables are set:
+   `ENTITLEMENT_CODES_FILE`, `ALLOWED_APP_IDS`, `ALLOWED_PLATFORMS`, and
+   `MIN_APP_VERSION`.
+7. Keep the repository private. Do not expose GitHub credentials to Afon.
+
+Render provides the HTTPS host. Use that host for Afon only after deployment is
+live and smoke-tested.
+
+## Post-Deploy Smoke Checklist
+
+Run against the Render HTTPS host:
+
+```sh
+curl -sS https://<host>/healthz
+```
+
+```sh
+curl -sS -X POST -H 'content-type: application/json' \
+  https://<host>/theme-entitlements \
+  -d '{"code":"SMOKE-EARLY-001","app":"afon","platform":"android","appVersion":"0.1.1+15"}'
+```
+
+```sh
+curl -sS -X POST -H 'content-type: application/json' \
+  https://<host>/theme-entitlements \
+  -d '{"code":"NEBULA-EARLY-001","app":"afon","platform":"ios","appVersion":"0.1.1+15"}'
+```
+
+```sh
+curl -sS -X POST -H 'content-type: application/json' \
+  https://<host>/theme-entitlements \
+  -d '{"code":"NOT-A-CODE","app":"afon","platform":"android","appVersion":"0.1.1+15"}'
+```
+
+```sh
+curl -sS -X POST -H 'content-type: application/json' \
+  https://<host>/theme-entitlements \
+  -d '{"code":"ICE-EARLY-EXPIRED","app":"afon","platform":"android","appVersion":"0.1.1+15"}'
+```
+
+Confirm:
+
+- `/healthz` returns `{ "ok": true }`.
+- Smoke code returns one Smoke entitlement.
+- Nebula code returns one Nebula entitlement.
+- Invalid code returns the generic failure shape.
+- Expired code returns the generic failure shape.
+- Logs do not show submitted codes or full request bodies.
 
 ## Afon Build Flag
 

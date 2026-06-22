@@ -33,6 +33,14 @@ const config = {
   codeThrottleMaxAttempts: 100
 };
 
+test("server exposes safe healthz route", async () => {
+  await withServer(async ({ port }) => {
+    const response = await send({ port, method: "GET", path: "/healthz" });
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.json, { ok: true });
+  });
+});
+
 test("server rejects non-POST methods for entitlement endpoint", async () => {
   await withServer(async ({ port }) => {
     const response = await send({ port, method: "GET", path: "/theme-entitlements" });
