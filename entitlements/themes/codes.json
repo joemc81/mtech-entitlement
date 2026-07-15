@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-07-15T00:00:00.000Z",
   "codes": [
     {
       "code": "SMOKE-EARLY-001",
@@ -35,17 +35,17 @@
       "minAppVersion": "0.1.1+15"
     },
     {
-      "code": "ICE-EARLY-EXPIRED",
+      "code": "ICE-EARLY-001",
       "enabled": true,
       "allowedApps": ["afon"],
-      "entitlementId": "theme_ice_early_expired",
+      "entitlementId": "theme_ice_early_001",
       "themeId": "ice",
       "publisherId": "mtech",
       "version": "1.0.0",
-      "issuedAt": "2026-06-01T00:00:00.000Z",
-      "expiresAt": "2026-06-15T00:00:00.000Z",
-      "packageUrl": "https://m-techindustries.com/afon/themes/ice/package.zip",
-      "sha256Url": "https://m-techindustries.com/afon/themes/ice/package.sha256",
+      "issuedAt": "2026-07-15T00:00:00.000Z",
+      "expiresAt": "2026-07-31T23:59:59.000Z",
+      "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/ice/package.zip",
+      "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/ice/package.sha256",
       "packageSha256": "f3812f07f74f4bd62dfcc0b3b85bde30aeb349a360c88a9acdd4f913c21a0023",
       "allowedPlatforms": ["android", "ios"],
       "minAppVersion": "0.1.1+15"
