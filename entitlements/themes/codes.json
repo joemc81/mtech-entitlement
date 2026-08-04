@@ -62,7 +62,7 @@
       "expiresAt": "2027-08-31T23:59:59.000Z",
       "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/reading-room/package.zip",
       "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/reading-room/package.sha256",
-      "packageSha256": "fdca223ee444c070c300831bb58bc741a5b982eefae36caf045d492418ff8500",
+      "packageSha256": "fd6e6e24dd30bb17760305293552d528345fad609dfa1a678897f276b7912976",
       "allowedPlatforms": ["android", "ios"],
       "minAppVersion": "0.1.1+15"
     },
@@ -78,7 +78,7 @@
       "expiresAt": "2027-08-31T23:59:59.000Z",
       "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/afterglow-86/package.zip",
       "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/afterglow-86/package.sha256",
-      "packageSha256": "eef09115e25f887f46f1e0132bac7eda7139edc4a27e8fbb545f716f46dd0455",
+      "packageSha256": "b53d255a40e249e7ee3ed87e234780e028144f7caaae82211700767dd47aca40",
       "allowedPlatforms": ["android", "ios"],
       "minAppVersion": "0.1.1+15"
     },
@@ -94,7 +94,7 @@
       "expiresAt": "2027-08-31T23:59:59.000Z",
       "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/ember/package.zip",
       "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/ember/package.sha256",
-      "packageSha256": "c3ad57de428b44f50e8a427cfd65897bd9794e9dac830e70ab477146b850033c",
+      "packageSha256": "521bcc790a18cb6b1a565c0af5419bd0b8217c45069a45fe672817bc61bf85ce",
       "allowedPlatforms": ["android", "ios"],
       "minAppVersion": "0.1.1+15"
     },
@@ -110,7 +110,7 @@
       "expiresAt": "2027-08-31T23:59:59.000Z",
       "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/tidal/package.zip",
       "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/tidal/package.sha256",
-      "packageSha256": "be3b530bb01d5f59e01229c424ae2683305b8504c9c8f587cb0ecc2419fb0f7a",
+      "packageSha256": "dfc58dc0e280b8b3098d62bec7e07bcd88d5ed5b039173767a71c148f700cfdc",
       "allowedPlatforms": ["android", "ios"],
       "minAppVersion": "0.1.1+15"
     },
@@ -126,7 +126,7 @@
       "expiresAt": "2027-08-31T23:59:59.000Z",
       "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/zephyr/package.zip",
       "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/zephyr/package.sha256",
-      "packageSha256": "ffbf67d558b1d53ae6c25729b4aee61a2df3960db15db9945c86f507af73eaee",
+      "packageSha256": "f1a8168b269c109429c7d939fec12159960a84d2a2b5770691c833c2f56e7d87",
       "allowedPlatforms": ["android", "ios"],
       "minAppVersion": "0.1.1+15"
     },
@@ -142,7 +142,7 @@
       "expiresAt": "2027-08-31T23:59:59.000Z",
       "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/terrene/package.zip",
       "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/terrene/package.sha256",
-      "packageSha256": "1c4cc82f3a43958beb4ac8efa66df59e879ba3450e2907dee6d5bfad07f1037b",
+      "packageSha256": "fa687a680dd0e331b87b556ee5899ac1c2eb2f06928d0290ee007b1fee06a8e8",
       "allowedPlatforms": ["android", "ios"],
       "minAppVersion": "0.1.1+15"
     }
