@@ -39,8 +39,8 @@ Success:
       "version": "1.0.0",
       "issuedAt": "2026-06-22T00:00:00.000Z",
       "expiresAt": null,
-      "packageUrl": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/smoke/package.zip",
-      "sha256Url": "https://m-tech-industries-llc.github.io/mtech-public-pages/themes/afon/smoke/package.sha256",
+      "packageUrl": "https://m-techindustries.com/themes/afon/smoke/package.zip",
+      "sha256Url": "https://m-techindustries.com/themes/afon/smoke/package.sha256",
       "packageSha256": "<sha256>",
       "packageHash": "<sha256>"
     }
