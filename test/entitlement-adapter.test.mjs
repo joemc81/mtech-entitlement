@@ -25,6 +25,7 @@ test("protected entitlement source is required and examples cannot start authori
   await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [] }) }), /Invalid theme entitlement/);
   await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [{ ...validEntry, enabled: false }] }) }), /No active/);
   await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [{ ...validEntry, packageUrl: "http://example.invalid/package.zip" }] }) }), /Invalid theme entitlement/);
+  await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [{ ...validEntry, entitlementId: "theme_smoke_early_001" }] }) }), /Invalid theme entitlement/);
   await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [validEntry] }), entitlementCodesFile: "/tmp/other.json" }), /Exactly one protected/);
   const records = await loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [validEntry] }) });
   assert.equal(records.length, 1);

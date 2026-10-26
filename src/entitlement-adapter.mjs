@@ -19,11 +19,12 @@ export async function loadThemeCodes({ entitlementCodesFile = "", entitlementCod
   if (!decoded || decoded.schemaVersion !== 1 || !Array.isArray(decoded.codes) || decoded.codes.length === 0) {
     throw new Error("Invalid theme entitlement code data.");
   }
+  const retiredIds = await loadRetiredEntitlementIds();
   const seen = new Set();
   for (const entry of decoded.codes) {
     const code = normalizeCode(entry?.code);
     if (!SAFE_CODE_PATTERN.test(code) || seen.has(code) || typeof entry.enabled !== "boolean" ||
-        (entry.enabled && !isCompleteActiveEntry(entry))) {
+        (entry.enabled && (!isCompleteActiveEntry(entry) || retiredIds.has(entry.entitlementId)))) {
       throw new Error("Invalid theme entitlement code data.");
     }
     seen.add(code);
@@ -32,6 +33,16 @@ export async function loadThemeCodes({ entitlementCodesFile = "", entitlementCod
     throw new Error("No active theme entitlement records configured.");
   }
   return decoded.codes;
+}
+
+async function loadRetiredEntitlementIds() {
+  const raw = await readFile(new URL("../entitlements/themes/retired-records.json", import.meta.url), "utf8");
+  const audit = JSON.parse(raw);
+  if (audit?.schemaVersion !== 1 || !Array.isArray(audit.records) || audit.records.length !== 9 ||
+      audit.records.some((record) => !SAFE_ID_PATTERN.test(safeValue(record.entitlementId)))) {
+    throw new Error("Invalid retired entitlement metadata.");
+  }
+  return new Set(audit.records.map((record) => record.entitlementId));
 }
 
 async function isOutsideSourceTree(path) {

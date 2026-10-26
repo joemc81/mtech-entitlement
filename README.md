@@ -6,7 +6,7 @@ Production theme ZIP and SHA-256 files are intentionally public at `m-techindust
 
 ## Security status
 
-Nine previously tracked redemption records were exposed in the public repository. They are permanently retired from deployable source. `entitlements/themes/retired-records.json` retains only non-secret audit identities. This does not establish operational revocation at a live service; no production service is qualified yet. Never reuse or derive replacement values from the exposed values.
+Nine previously tracked redemption records were exposed in the public repository. They are permanently retired from deployable source. `entitlements/themes/retired-records.json` retains only non-secret audit identities; startup rejects active records with those retired entitlement IDs. This does not establish operational revocation at a live service; no production service is qualified yet. Never reuse or derive replacement values from the exposed values.
 
 Active redemption data must be supplied outside Git. `entitlements/themes/codes.example.json` is an expired, disabled, synthetic schema illustration and cannot start the service. No current file in this repository is a production entitlement source.
 
