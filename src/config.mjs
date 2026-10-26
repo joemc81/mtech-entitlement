@@ -1,9 +1,8 @@
-const DEFAULT_CODES_FILE = "entitlements/themes/codes.json";
-
 export function loadConfig(env = process.env) {
   return {
     port: integerEnv(env.PORT, 8787),
-    entitlementCodesFile: env.ENTITLEMENT_CODES_FILE || DEFAULT_CODES_FILE,
+    entitlementCodesFile: env.ENTITLEMENT_CODES_FILE || "",
+    entitlementCodesJson: env.ENTITLEMENT_CODES_JSON || "",
     allowedApps: csvEnv(env.ALLOWED_APP_IDS, ["afon"]).map((value) => value.toLowerCase()),
     allowedPlatforms: csvEnv(env.ALLOWED_PLATFORMS, ["android", "ios"]).map((value) => value.toLowerCase()),
     minimumAppVersion: env.MIN_APP_VERSION || "",

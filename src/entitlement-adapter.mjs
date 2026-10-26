@@ -1,18 +1,53 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { readFile, realpath } from "node:fs/promises";
+import { isAbsolute, relative, sep } from "node:path";
 import { loadConfig } from "./config.mjs";
 
-const DEFAULT_CODES_FILE = "entitlements/themes/codes.json";
 const SAFE_CODE_PATTERN = /^[A-Za-z0-9._-]{4,120}$/;
 const SAFE_ID_PATTERN = /^[A-Za-z0-9._:-]{1,160}$/;
 
-export async function loadThemeCodes(path = process.env.ENTITLEMENT_CODES_FILE || DEFAULT_CODES_FILE) {
-  const raw = await readFile(resolve(path), "utf8");
+export async function loadThemeCodes({ entitlementCodesFile = "", entitlementCodesJson = "" } = loadConfig()) {
+  const file = entitlementCodesFile.trim();
+  const json = entitlementCodesJson.trim();
+  if (Boolean(file) === Boolean(json)) {
+    throw new Error("Exactly one protected entitlement source must be configured.");
+  }
+  if (file && (!isAbsolute(file) || !await isOutsideSourceTree(file))) {
+    throw new Error("Entitlement data file must be absolute and outside the source tree.");
+  }
+  const raw = file ? await readFile(file, "utf8") : json;
   const decoded = JSON.parse(raw);
-  if (!decoded || decoded.schemaVersion !== 1 || !Array.isArray(decoded.codes)) {
+  if (!decoded || decoded.schemaVersion !== 1 || !Array.isArray(decoded.codes) || decoded.codes.length === 0) {
     throw new Error("Invalid theme entitlement code data.");
   }
+  const seen = new Set();
+  for (const entry of decoded.codes) {
+    const code = normalizeCode(entry?.code);
+    if (!SAFE_CODE_PATTERN.test(code) || seen.has(code) || typeof entry.enabled !== "boolean" ||
+        (entry.enabled && !isCompleteActiveEntry(entry))) {
+      throw new Error("Invalid theme entitlement code data.");
+    }
+    seen.add(code);
+  }
+  if (!decoded.codes.some((entry) => entry.enabled === true)) {
+    throw new Error("No active theme entitlement records configured.");
+  }
   return decoded.codes;
+}
+
+async function isOutsideSourceTree(path) {
+  const location = relative(await realpath(process.cwd()), await realpath(path));
+  return location === ".." || location.startsWith(`..${sep}`);
+}
+
+function isCompleteActiveEntry(entry) {
+  const apps = Array.isArray(entry.allowedApps) ? entry.allowedApps : [entry.app];
+  return apps.some((app) => safeValue(app).length > 0) &&
+    SAFE_ID_PATTERN.test(safeValue(entry.entitlementId)) &&
+    SAFE_ID_PATTERN.test(safeValue(entry.themeId)) &&
+    SAFE_ID_PATTERN.test(safeValue(entry.publisherId)) &&
+    isHttpsUrl(entry.packageUrl) && isHttpsUrl(entry.sha256Url) &&
+    /^[a-fA-F0-9]{64}$/.test(safeValue(entry.packageSha256)) &&
+    (!entry.expiresAt || parseOptionalDate(entry.expiresAt) !== null);
 }
 
 export async function validateThemeCode(request, { loadCodes = loadThemeCodes, now = () => new Date(), logger = safeLog, requestId = "", config = loadConfig() } = {}) {

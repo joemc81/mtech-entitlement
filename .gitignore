@@ -1,0 +1,4 @@
+.env
+.env.*
+entitlements/themes/codes.json
+entitlements/themes/*.private.json

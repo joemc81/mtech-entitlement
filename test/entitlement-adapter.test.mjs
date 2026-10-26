@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateThemeCode } from "../src/entitlement-adapter.mjs";
+import { loadThemeCodes, validateThemeCode } from "../src/entitlement-adapter.mjs";
 
 const validEntry = {
   code: "SMOKE-PRIVATE-TEST",
@@ -18,6 +18,17 @@ const validEntry = {
   allowedPlatforms: ["android", "ios"],
   minAppVersion: "0.1.1+15"
 };
+
+test("protected entitlement source is required and examples cannot start authority", async () => {
+  await assert.rejects(loadThemeCodes({}), /Exactly one protected/);
+  await assert.rejects(loadThemeCodes({ entitlementCodesFile: "entitlements/themes/codes.example.json" }), /outside the source tree/);
+  await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [] }) }), /Invalid theme entitlement/);
+  await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [{ ...validEntry, enabled: false }] }) }), /No active/);
+  await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [{ ...validEntry, packageUrl: "http://example.invalid/package.zip" }] }) }), /Invalid theme entitlement/);
+  await assert.rejects(loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [validEntry] }), entitlementCodesFile: "/tmp/other.json" }), /Exactly one protected/);
+  const records = await loadThemeCodes({ entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [validEntry] }) });
+  assert.equal(records.length, 1);
+});
 
 function request(overrides = {}) {
   return {

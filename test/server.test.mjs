@@ -3,7 +3,7 @@ import { once } from "node:events";
 import { request as httpRequest } from "node:http";
 import test from "node:test";
 import { WindowLimiter } from "../src/abuse-controls.mjs";
-import { createEntitlementServer } from "../src/server.mjs";
+import { createEntitlementServer, startEntitlementServer } from "../src/server.mjs";
 
 const validEntry = {
   code: "SMOKE-PRIVATE-TEST",
@@ -32,6 +32,30 @@ const config = {
   codeThrottleWindowMs: 60_000,
   codeThrottleMaxAttempts: 100
 };
+
+test("startup fails before listening without a protected source", async () => {
+  await assert.rejects(startEntitlementServer({ config: { ...config, port: 0 }, logger: () => {} }), /Exactly one protected/);
+  await assert.rejects(startEntitlementServer({
+    config: { ...config, port: 0, entitlementCodesJson: "not-json" },
+    logger: () => {}
+  }), SyntaxError);
+});
+
+test("protected environment source starts without logging redemption values", async () => {
+  const logs = [];
+  const server = await startEntitlementServer({
+    config: { ...config, port: 0, entitlementCodesJson: JSON.stringify({ schemaVersion: 1, codes: [validEntry] }) },
+    logger: (event, metadata) => logs.push({ event, metadata })
+  });
+  try {
+    const response = await send({ port: server.address().port, method: "GET", path: "/healthz" });
+    assert.equal(response.statusCode, 200);
+    assert.equal(JSON.stringify(logs).includes(validEntry.code), false);
+  } finally {
+    server.close();
+    await once(server, "close");
+  }
+});
 
 test("server exposes safe healthz route", async () => {
   await withServer(async ({ port }) => {

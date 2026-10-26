@@ -20,7 +20,7 @@ export function createEntitlementServer({
     maxAttempts: config.codeThrottleMaxAttempts
   })
 } = {}) {
-  const codeLoader = loadCodes || (() => loadThemeCodes(config.entitlementCodesFile));
+  const codeLoader = loadCodes || (() => loadThemeCodes(config));
   return createServer(async (request, response) => {
     const requestId = randomUUID();
     try {
@@ -88,23 +88,25 @@ export function createEntitlementServer({
   });
 }
 
+export async function startEntitlementServer({ config = loadConfig(), logger = safeLog } = {}) {
+  const codes = await loadThemeCodes(config);
+  const server = createEntitlementServer({ config, logger });
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(config.port, () => {
+      server.removeListener("error", reject);
+      resolve();
+    });
+  });
+  logger("theme_entitlement_codes_loaded", { loadedThemeEntitlementCodes: codes.length });
+  logger("entitlement_adapter_started", { port: server.address().port });
+  return server;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const server = createEntitlementServer({ config });
-  server.listen(config.port, () => {
-    loadThemeCodes(config.entitlementCodesFile)
-      .then((codes) => {
-        safeLog("theme_entitlement_codes_loaded", {
-          loadedThemeEntitlementCodes: codes.length,
-          entitlementCodesFile: config.entitlementCodesFile
-        });
-      })
-      .catch(() => {
-        safeLog("theme_entitlement_codes_load_failed", {
-          loadedThemeEntitlementCodes: 0,
-          entitlementCodesFile: config.entitlementCodesFile
-        });
-      });
-    safeLog("entitlement_adapter_started", { port: config.port });
+  startEntitlementServer({ config }).catch(() => {
+    safeLog("entitlement_adapter_start_failed", { reason: "invalid_or_missing_protected_source" });
+    process.exitCode = 1;
   });
 }
 

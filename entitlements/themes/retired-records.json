@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "retiredOn": "2026-10-26",
+  "reason": "Public source exposure; values permanently disallowed for future production authority. This is source retirement, not proof of live-service revocation.",
+  "records": [
+    { "entitlementId": "theme_smoke_early_001", "themeId": "smoke" },
+    { "entitlementId": "theme_nebula_early_001", "themeId": "nebula" },
+    { "entitlementId": "theme_ice_early_001", "themeId": "ice" },
+    { "entitlementId": "theme_reading_room_test_001", "themeId": "reading-room" },
+    { "entitlementId": "theme_afterglow_86_test_001", "themeId": "afterglow-86" },
+    { "entitlementId": "theme_ember_test_001", "themeId": "ember" },
+    { "entitlementId": "theme_tidal_test_001", "themeId": "tidal" },
+    { "entitlementId": "theme_zephyr_test_001", "themeId": "zephyr" },
+    { "entitlementId": "theme_terrene_test_001", "themeId": "terrene" }
+  ]
+}
